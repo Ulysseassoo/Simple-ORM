@@ -1,7 +1,7 @@
 <?php
 
 namespace Framework;
-
+require_once(__DIR__.'/../Config/Config.php');
 use App\Config;
 use \PDO;
 
