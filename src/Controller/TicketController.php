@@ -20,7 +20,7 @@ class TicketController {
             ];
         } else {
             $response = [
-                "status" => 301,
+                "status" => 404,
                 "message" => "There are no tickets."
             ];
         }
@@ -40,7 +40,7 @@ class TicketController {
             ];
         } else {
             $response = [
-                "status" => 301,
+                "status" => 404,
                 "message" => "There are no tickets."
             ];
         }
@@ -60,7 +60,7 @@ class TicketController {
             ];
         } else {
             $response = [
-                "status" => 301,
+                "status" => 404,
                 "message" => "There are no ticket."
             ];
         }
@@ -80,16 +80,33 @@ class TicketController {
         
         if ($ticket){
             $result = [
-                "status" => 200,
+                "status" => 201,
                 "result" => "ticket created !"
             ];
         } else {
             $result = [
-                "status" => 400,
+                "status" => 404,
                 "result" => "problem occured!"
             ];
         }
         echo(json_encode($result));
         return $ticket;
+    }
+
+    public function export(Int $ticket_id)
+    {
+        $ticketModel = new TicketModel();
+        $ticket = $ticketModel->getComments($ticket_id);
+        $ticket_text = "Ticket id #{$ticket[0]['id']}\r Section : {$ticket[0]['section']}\rTitle : {$ticket[0]['title']}\rDescription : {$ticket[0]['description']}\rCreated at : {$ticket[0]['createdAt']}\rState : {$ticket[0]['state']}\r\rAll comments \r\r";
+        $my_file = fopen(__DIR__."/../Data/trame.txt", "w", true);
+        fwrite($my_file, $ticket_text);
+
+        foreach ($ticket[1] as $comment) {
+            $comment = "comment#{$comment["id"]}\rdescription : {$comment["description"]}\rcreatedAt : {$comment["createdAt"]}\r\r";
+            fwrite($my_file, $comment);
+        }
+        
+        fclose($my_file);
+        echo(json_encode("Ticket has been exported"));
     }
 }

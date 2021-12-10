@@ -79,13 +79,15 @@ class TicketModel extends Model
 
         $result = [];
 
-        foreach ($comments_id as $comment) {
-            $query = $db->prepare('SELECT * FROM `comment` WHERE id = :comment_id');
-            $query->execute([
-                "comment_id" => $comment["comment_id"]
-            ]);
-            $comment = $query->fetch(PDO::FETCH_ASSOC);
-            array_push($result, $comment);
+        if (!empty($comments_id)) {
+            foreach ($comments_id as $comment) {
+                $query = $db->prepare('SELECT * FROM `comment` WHERE id = :comment_id');
+                $query->execute([
+                    "comment_id" => $comment["comment_id"]
+                ]);
+                $comment = $query->fetch(PDO::FETCH_ASSOC);
+                array_push($result, $comment);
+            }
         }
 
         $data = [
