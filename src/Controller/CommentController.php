@@ -22,7 +22,7 @@ class CommentController {
         } else {
             $response = [
                 "status" => 404,
-                "message" => "No comment !"
+                "message" => "No comments found"
             ];
         }
         echo(json_encode($response));
@@ -54,18 +54,26 @@ class CommentController {
 
         $json = file_get_contents('php://input');
         $data = json_decode($json);
-        $comment = $commentModel->save($data->description, $ticket_id);
-        header('Content-Type: application/json');
 
-        if($comment){
+        $errors = [];
+        if(empty($data->description) || $data->description === null || $data->description === ""){
+            $errors[] = "description cannot be null";
+        }
+        
+        header('Content-Type: application/json');
+        if (sizeOf($errors) === 0) {
+            $comment = $commentModel->save($data->description, $ticket_id);
+            if ($comment){
+                $response = [
+                    "status" => 201,
+                    "result" => "ticket created !"
+                ];
+            }
+        }
+        else {
             $response = [
-                "status" => 201,
-                "results" => $comment
-            ];
-        } else {
-            $response = [
-                "status" => 404,
-                "results" => "This ticket doesn't exist"
+                "status" => 400,
+                "details" => $errors
             ];
         }
         echo(json_encode($response));

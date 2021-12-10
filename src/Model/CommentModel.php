@@ -16,7 +16,8 @@
             return $comments;
         }
 
-        public function find(Int $id){
+        public function find(Int $id): Array
+        {
 
             $response = [];
 
@@ -52,7 +53,8 @@
             return ($comments);
         }
 
-        public function save($description, $ticket_id){
+        public function save($description, $ticket_id): Array|bool
+        {
 
             $createdAt = date("Y/m/d H:i:s");
 

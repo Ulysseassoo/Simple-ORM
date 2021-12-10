@@ -8,7 +8,7 @@ use App\Model\TicketModel;
 
 class TicketController {
 
-    public function getTickets()
+    public function getTickets(): string
     {   
         $ticketModel = new TicketModel;
         $tickets = $ticketModel->findBy(array("section" => "Marketing"));
@@ -28,7 +28,7 @@ class TicketController {
         return json_encode($response);
     }
 
-    public function getAll()
+    public function getAll():string
     {   
         $ticketModel = new TicketModel;
         $tickets = $ticketModel->findAll();
@@ -48,7 +48,7 @@ class TicketController {
         return json_encode($response);
     }
 
-    public function getTicket(Int $id)
+    public function getTicket(Int $id): string
     {   
         $ticketModel = new TicketModel;
         $ticket = $ticketModel->find($id);
@@ -68,32 +68,45 @@ class TicketController {
         return json_encode($response);
     }
 
-    public function createTicket()
+    public function createTicket(): void
     {
         $ticketModel = new TicketModel();
 
         $json = file_get_contents('php://input');
         $data = json_decode($json);
 
-        $ticket = $ticketModel->save($data->section, $data->title, $data->description);
-        header('Content-Type: application/json');
+        $errors = [];
+        if(empty($data->title) || $data->title === ""){
+            $errors[] = "title cannot be null";
+        }
+        if(empty($data->section) || $data->section === ""){
+            $errors[] = "section cannot be null";
+        }
+        if(empty($data->description) || $data->description === null || $data->description === ""){
+            $errors[] = "description cannot be null";
+        }
+
         
-        if ($ticket){
+        header('Content-Type: application/json');
+        if (sizeOf($errors) === 0) {
+            $ticket = $ticketModel->save($data->section, $data->title, $data->description);
+            if ($ticket){
+                $result = [
+                    "status" => 201,
+                    "result" => "ticket created !"
+                ];
+            }
+        }
+        else {
             $result = [
-                "status" => 201,
-                "result" => "ticket created !"
-            ];
-        } else {
-            $result = [
-                "status" => 404,
-                "result" => "problem occured!"
+                "status" => 400,
+                "details" => $errors
             ];
         }
         echo(json_encode($result));
-        return $ticket;
     }
 
-    public function export(Int $ticket_id)
+    public function export(Int $ticket_id): void
     {
         $ticketModel = new TicketModel();
         $ticket = $ticketModel->getComments($ticket_id);
@@ -107,6 +120,7 @@ class TicketController {
         }
         
         fclose($my_file);
+        header('Content-Type: application/json');
         echo(json_encode("Ticket has been exported"));
     }
 }
